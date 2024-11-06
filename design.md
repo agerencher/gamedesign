@@ -86,7 +86,85 @@ Gameplay
             
         The last star will have to be collected somewhere on the run, whether that be through some trees, on a jump, of just on the run.
 
+Phase 1: Basic Game Framework
+Set Up Phaser Environment:
 
+Initialize Phaser game instance.
+Create scenes for Main Menu, Build Mode, and Ski Mode.
+Design Core UI Elements:
+
+Build Main Menu with options for "Play" and "Settings."
+Add a "Leaderboard" screen for viewing high scores.
+Phase 2: Ski Mode Core Gameplay
+Skier Controls:
+
+Controls: Implement A and D for left-right movement, W and S for acceleration/braking, Space for jump, and R for tricks.
+Physics: Use Phaser's physics engine to handle skier momentum, friction, and gravity for realistic movement.
+Smooth Turning: Implement gradual turning instead of abrupt changes.
+Obstacles and Collisions:
+
+Types of Obstacles: Define Tree, Rock, Other Skier.
+Collision Detection: Use Phaser’s built-in collision detection to slow the player down and apply penalties for collisions.
+Obstacle Placement: Randomly place obstacles on each run with varying difficulty.
+Trick System:
+
+Implement a basic trick system where players press R to perform tricks when jumping.
+Scoring: Assign points based on trick duration and successful landing.
+Star Collection and Scoring:
+
+Add stars along runs, rewarding players for skillful navigation.
+Time-Based Stars: Assign 1-3 stars based on completion time and trick points.
+Display score and star count at the end of each run.
+Phase 3: Progression and Unlocks
+Mountain and Run Unlock System:
+
+First Mountain: Start with the initial mountain unlocked.
+Run Progression: Unlock new runs based on star count and time-based achievements.
+Mountain Progression: When all runs on a mountain are completed, unlock the next mountain.
+Player Progression:
+
+Leveling Up: Players level up by earning stars, which unlocks new mountains and rewards.
+Leaderboard Integration: Track fastest times and highest trick scores for each mountain.
+Phase 4: Build Mode and Customization
+Build Mode UI:
+
+Display a catalog of terrain features like jumps, rails, and boxes.
+Implement drag-and-drop to place features on a slope.
+Free Camera: Allow players to move the camera around to view their park.
+Cosmetic Customization:
+
+Basic items: Skis, helmet, boots, and goggles.
+Unlock items by leveling up or completing challenges (like collecting all stars on a mountain).
+Allow players to equip items that alter gameplay stats, such as increased jump height or reduced friction.
+Phase 5: Leaderboard and Competition
+Leaderboard:
+
+Track high scores and completion times per run.
+Implement a backend API (using Express) to store and retrieve leaderboard data.
+Daily Competitions:
+
+Implement a rotating daily challenge, such as fastest time on a specific run.
+Display winners and award points or exclusive items.
+Phase 6: Testing and Optimization
+Performance Testing:
+
+Optimize Phaser scenes and assets for smooth performance across devices.
+Test physics settings to ensure realistic movement and collision responses.
+User Experience:
+
+Refine controls for responsiveness and playability.
+Adjust difficulty to ensure a smooth progression curve.
+Summary of Class Relationships
+GameManager:
+Handles game state, unlocks, progression, and leaderboard.
+Skier:
+Manages movement, collision detection, and trick execution.
+Run:
+Defines obstacles, scoring, and star requirements.
+Obstacle:
+Tracks types and locations of obstacles.
+Leaderboard:
+Stores and retrieves high scores from the backend.
 
 
 
