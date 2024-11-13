@@ -23,8 +23,6 @@
 - lives: int - Number of lives remaining.
 - isGameOver: boolean - Indicates if the game is over (player crashed or quit).
 - player: Skier - Instance of the player character (skier).
-  obstacles: List<Obstacle> - List of obstacles in the current run (trees, rocks, NPC skiers).
-- coins: List<Coin> - Coins scattered across the slope for the player to collect.
 - terrain: Terrain - Object that represents the mountain terrain (slopes, jumps, paths).
 - timeElapsed: float - Total time spent in the current run.
 - isPaused: boolean - Indicates if the game is paused.
@@ -85,21 +83,18 @@ Handles the mountain slope, paths, jumps, and obstacles. It controls the layout 
 
 - terrainMesh: THREE.Mesh - The 3D terrain object, typically a large plane or set of meshes representing the ski slope.
 - obstacles: List<Obstacle> - List of obstacles (trees, rocks, NPC skiers, etc.) placed on the terrain.
-- jumps: List<Jump> - List of jump areas the player can perform tricks on.
+- coins: List<Coin> - Coins scattered across the slope for the player to collect.
 - terrainShape: Cannon.Body - The physical representation of the terrain, used for collision detection with the skier.
 
 ### Methods
 
 - initializeTerrain()
-  Behavior: Generates or loads the terrain, placing obstacles and other interactable elements (like jumps) in the environment.
+  Behavior: Loads the terrain, placing obstacles and other interactable elements (like jumps) in the environment.
+- updateTerrain()
+  Behavior: Throws out past terrain/coins/obstacles and generates new, fluid terrain/coins/obstacles
 - checkSlope()
   Input: Vector3 position - Checks the slope at the given position to determine if the skier is on an incline, flat ground, or downhill.
   Output: float - Returns the angle of the slope, which can affect the skier’s velocity.
-- placeObstacle()
-  Input: Obstacle obstacle - Places an obstacle at a specific location on the slope.
-  Behavior: Adds obstacles (e.g., trees, rocks) to the terrain for the skier to avoid.
-- generateJumps()
-  Behavior: Places jump ramps or areas on the terrain where the skier can perform tricks or collect extra points.
 
 ## Obstacle
 
@@ -139,3 +134,5 @@ isCollected: boolean - Whether the coin has been collected by the player.
   Behavior: Checks if the skier has collected the coin and updates the score accordingly.
 
 # Data Model
+
+https://www.figma.com/board/FvIGDkrEn6VCOn1RObXb4r/Untitled?node-id=0-1&t=yfdamC8gmrgPTfQz-1
