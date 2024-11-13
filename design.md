@@ -1,80 +1,133 @@
-Summary: This game is a subway surfers-like game but with skiing. The user’s skier will be able to be customized by the user’s choice of helmet, skis, boots, and goggles. Mountains and runs based off of real-world locations
+# Skiing Adventure Game Design
 
-Theme: Cartoon theme without realistic graphics. 3rd Person viewing mode.
+## Summary
 
+This game is a **Subway Surfers**-like game but with skiing. The user’s skier can be customized by choosing a helmet, skis, boots, and goggles. The mountains and runs are based on real-world locations.
 
-Design:
-    Home Screen - all buttons will be colored with those that match with the background
-        Customization - In the middle of the screen is your customizable skier as a 3D model, spinning slowly to show off its customization.
-            When you click on the skier, it brings the user to a new page to customize
+- **Theme**: Cartoonish style with non-realistic graphics.
+- **View Mode**: 3rd Person perspective.
 
-        Stats - Above the skier, it shows some stats: most coins collected, and longest time played
+---
 
-        Play - Under the skier, will be an “Play button” that brings the user into the game.
+## Design
 
-        Settings - In the top right of the screen, there will be a settings button with a basic options menu with things like volume sliders and sensitivity sliders
+### Home Screen
 
-        Background - The background of the home screen will be a detailed ski slope, with jumps, trees, and other skiers skiing down in the background
+- **Buttons**: All buttons are color-coordinated to match the background.
+- **Customization**:
 
-        Leaderboard - On the left hand side of the screen, there will be a leaderboard for stars completed.
+  - In the middle of the screen, the skier is displayed as a 3D model, spinning slowly to showcase the customization.
+  - Clicking on the skier opens a new page for customization.
 
-    Cosmetics page
-        Layout - This page will have the user’s skier in the middle, just a bit smaller.
-        You will be able to click on any customizable part of the skier (boots, skis, googles, and helmet) which will bring a dropdown menu of all cosmetics for that part.
+- **Stats**:
 
-        Spin Wheel - To unlock cosmetics, there will be a wheel to spin on the right side of the screen and you will randomly get a cosmetic for any part
-                To spin the wheel, it will cost a star (earned by completing runs) and then you will get a new cosmetic and will not be greyed out in the dropdown menu for that part
-                When the cosmetic is equipped, the skier in the middle will change based on that cosmetic 
+  - Displayed above the skier:
+    - Most coins collected
+    - Longest time played
 
-    End Screen
-        After you lose, the end screen will show your time in the middle, amt of coins collected right under, a play again button, and a back to home button. The background of this screen will be your skier, either crashed into a rock, skier, tree (the way you lost).
+- **Play**:
 
-Gameplay
-    After clicking play, a cut-scene will play, showing your skier getting off a chair lift, and head toward the slope, then you can start playing once it reaches the slope
+  - Under the skier is a “Play” button that leads the user into the game.
 
-    The movement should be fluid with the user being adn to change direction with ease and speed up and brake without a jerk of the screen.
-        Changing direction wont move the skier 90 degrees right or left, but will gradually point them in the directions they want to move
+- **Settings**:
 
-    Controls
-        Computer: A and D for side to side movement. Space bar for jump. R to do a trick
+  - Located in the top-right corner, opens a basic options menu with volume sliders and sensitivity sliders.
 
-        Mobile: swipe side to side to move directions. There will be a button on the side to do a trick.
-    
-    Obstacles - On runs, there will be obstacles
-        Other skers/snowboarders going down the mountain (not multiplayer, just npcs)
-            If hit them, you will lose;
+- **Background**:
 
-        Rocks, trees, and holes will be other obstacles
-            Slightly Hitting an obstacle will slow down the user a lot and a dizzy animation will play.
+  - Features a detailed ski slope, with jumps, trees, and NPC skiers skiing down.
 
-            Completely ramming into it will make you lose
+- **Leaderboard**:
+  - On the left-hand side of the screen, there is a leaderboard for stars completed.
 
+### Cosmetics Page
 
-        Hitting an obstacle will slow down the user a lot and a dizzy animation will play.
-        Technique Req - Some levels and run(the more difficult ones) will require certain movement techniques to be able to get down the mountain quick enough.
-            Harder levels will also have more obstacles
+- **Layout**:
+  - The skier is displayed in the middle, slightly smaller.
+- **Customization**:
+  - The player can click on any customizable part of the skier (boots, skis, goggles, and helmet) to open a dropdown menu with available cosmetics for that part.
+- **Spin Wheel**:
+  - To unlock cosmetics, a wheel is available on the right side of the screen.
+  - Each spin costs one star (earned by completing runs) and grants a new cosmetic item for any part.
+  - Once unlocked, the cosmetic will no longer be grayed out in the dropdown menu.
+  - When a cosmetic is equipped, the skier in the center will update to reflect the change.
 
-        On more steep slopes, the user may lose control of their character bc their technique wasnt right and have to restart the level
+### End Screen
 
-    Coins
-        There will be coins on the slope, able to be collected.
+- After losing, the end screen shows:
 
-    Jumps
-        There will be small and big jumps the skier can go on for extra coins
+  - Time played
+  - Amount of coins collected
+  - A "Play Again" button
+  - A "Back to Home" button
 
-    Routes
-        The movement will be free (unlike how subway surfers have 3 columns). The obstacles will be randomly placed too, allowing creative movements and stuff
+- **Background**:
+  - The background shows the skier’s crash, either into a rock, tree, or another skier, reflecting how the player lost.
 
-        There will also be extra routes, like through trees, or side routes that lead to other parts of the mountains that the skier can go through. 
-            These routes may have more obstacles or may be easier, still unsure
+---
 
-    FUNCTION OF SLOPE 
-        You are facing down the slope as you play (3rd person)
-        
-        The mountain/slope is infinite, like as you go down, more ski slope will appear (ask me if you have a question abt this)
-        
-        As you increase through the game, you speed will increase and more obstacles will appear faster, making it more difficult to survive.
+## Gameplay
 
+### Cut-Scene
 
+- After clicking **Play**, a cutscene shows the skier getting off a chairlift and heading toward the slope. The player can begin playing once they reach the slope.
 
+### Movement
 
+- The skier’s movement should be fluid, allowing the player to change direction smoothly and speed up or brake without jerky animations.
+- **Direction**:
+  - Changing direction doesn’t snap the skier 90 degrees right or left but gradually turns them in the desired direction.
+
+### Controls
+
+- **Computer**:
+  - **A and D**: Move side to side
+  - **Spacebar**: Jump
+  - **R**: Perform a trick
+- **Mobile**:
+  - **Swipe**: Move side to side
+  - **Button**: On-screen button to perform a trick
+
+### Obstacles
+
+- **NPC Skiers/Snowboarders**:
+  - Other skiers or snowboarders are randomly placed on the slopes. Colliding with them results in a loss.
+- **Environmental Obstacles**:
+  - **Rocks, Trees, and Holes**:
+    - Slightly hitting an obstacle will slow the skier significantly and trigger a dizzy animation.
+    - Fully ramming into an obstacle will cause the skier to lose.
+- **Technique Requirements**:
+  - Some levels and runs (particularly the more difficult ones) will require specific movement techniques to navigate quickly enough.
+  - Harder levels will have more obstacles.
+  - On steeper slopes, the skier may lose control if the technique isn’t correct, requiring a restart.
+
+### Coins
+
+- Coins are scattered throughout the slopes and can be collected by the player.
+
+### Jumps
+
+- Small and large jumps are placed along the slopes, offering extra coins when completed.
+
+### Routes
+
+- **Free Movement**: Unlike Subway Surfers, which has fixed columns, this game allows free movement in any direction.
+  - Obstacles are randomly placed, allowing for more creative navigation.
+- **Extra Routes**:
+  - Some routes pass through trees or lead to other parts of the mountain.
+  - These routes may have more obstacles or be easier to navigate (still undecided).
+
+### Function of the Slope
+
+- **Endless Slope**:
+  - The slope is infinite; as the player progresses, more of the slope is generated ahead of them.
+- **Increasing Difficulty**:
+  - As the player advances, their speed increases, and more obstacles appear faster, making it progressively harder to survive.
+
+---
+
+## Additional Notes
+
+- **3rd-Person View**: The skier is always seen from behind, facing down the slope.
+- **Procedural Generation**: The game world is procedurally generated, creating endless runs with varying difficulty.
+- **Difficulty Curve**: As the player progresses, the game becomes more difficult, with more obstacles, higher speeds, and more challenging routes.
