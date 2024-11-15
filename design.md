@@ -63,6 +63,7 @@ This game is a **Subway Surfers**-like game but with skiing. The user’s skier 
 
 - **Background**:
   - The background shows the skier’s crash, either into a rock, tree, or another skier, reflecting how the player lost.
+  - Pan to the crashed skiier, fade into stats/end screen
 
 ---
 
