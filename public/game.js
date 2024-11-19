@@ -23,90 +23,111 @@ const skierBody = new CANNON.Body({
 world.addBody(skierBody);
 
 // Ground
-const groundGeometry = new THREE.PlaneGeometry(25, 50);
+const groundGeometry = new THREE.PlaneGeometry(16.67, 500); // 2/3 of the original 25 width
 const groundMaterial = new THREE.MeshBasicMaterial({ color: 0xEAEAEA, side: THREE.DoubleSide });
 const ground = new THREE.Mesh(groundGeometry, groundMaterial);
 ground.rotation.x = -Math.PI / 2;
+ground.position.set(0, 0, -250); // Centered to cover a large area
 scene.add(ground);
-
-scene.background = new THREE.Color(0x87ceeb); // Example: Light blue sky color
-
 
 // Ground physics body
 const groundBody = new CANNON.Body({
-    mass: 0,
+    mass: 0, // Static body
     shape: new CANNON.Plane()
 });
-groundBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
+groundBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0); // Rotate to match the ground orientation
 world.addBody(groundBody);
 
-// Example obstacle
-const obstacleGeometry = new THREE.BoxGeometry(1, 1, 1);
-const obstacleMaterial = new THREE.MeshBasicMaterial({ color: 0x964B00 });
-const obstacle = new THREE.Mesh(obstacleGeometry, obstacleMaterial);
-obstacle.position.set(0, 0.5, -10); // Place it on the path
-scene.add(obstacle);
+scene.background = new THREE.Color(0x87ceeb); // Light blue sky color
 
-// Create a geometry to hold the trail points
-const trailGeometry = new THREE.BufferGeometry();
-const trailMaterial = new THREE.LineBasicMaterial({ color: 0xffffff }); // White trail
+// Border Material
+const borderMaterial = new THREE.MeshBasicMaterial({ color: 0x964B00 }); // Brown color for the borders
 
-// Start with an empty array of points
-const trailPoints = [];
-trailGeometry.setFromPoints(trailPoints);
+// Left Border
+const leftBorderGeometry = new THREE.BoxGeometry(0.5, 5, 500); // Long segment
+const leftBorder = new THREE.Mesh(leftBorderGeometry, borderMaterial);
+leftBorder.position.set(-8.33, 2.5, -250); // 2/3 of the original -12.5 position
+scene.add(leftBorder);
 
-// Create the line object and add it to the scene
-const skiTrail = new THREE.Line(trailGeometry, trailMaterial);
-scene.add(skiTrail);
+// Left border physics body
+const leftBorderBody = new CANNON.Body({
+    mass: 0, // Static body
+    shape: new CANNON.Box(new CANNON.Vec3(0.25, 2.5, 250)) // Half extents of the box
+});
+leftBorderBody.position.set(-8.33, 2.5, -250);
+world.addBody(leftBorderBody);
 
-let groundSegments = []; // Store ground segments for management
+// Right Border
+const rightBorderGeometry = new THREE.BoxGeometry(0.5, 5, 500); // Long segment
+const rightBorder = new THREE.Mesh(rightBorderGeometry, borderMaterial);
+rightBorder.position.set(8.33, 2.5, -250); // 2/3 of the original 12.5 position
+scene.add(rightBorder);
 
-function generateGroundSegment(zPosition) {
-    const groundGeometry = new THREE.PlaneGeometry(25, 50);
-    const groundMaterial = new THREE.MeshBasicMaterial({ color: 0xEAEAEA, side: THREE.DoubleSide });
-    const ground = new THREE.Mesh(groundGeometry, groundMaterial);
-    ground.rotation.x = -Math.PI / 2;
-    ground.position.set(0, 0, zPosition);
-    scene.add(ground);
-    groundSegments.push(ground);
-}
-
-// Initial ground segments
-for (let i = 0; i < 5; i++) {
-    generateGroundSegment(-i * 50); // Place segments along the z-axis
-}
-
-function manageGround() {
-    if (skier.position.z < groundSegments[0].position.z + 50) {
-        // Remove the oldest segment
-        scene.remove(groundSegments[0]);
-        groundSegments.shift();
-
-        // Add a new segment at the end
-        const newZPosition = groundSegments[groundSegments.length - 1].position.z - 50;
-        generateGroundSegment(newZPosition);
-    }
-}
+// Right border physics body
+const rightBorderBody = new CANNON.Body({
+    mass: 0, // Static body
+    shape: new CANNON.Box(new CANNON.Vec3(0.25, 2.5, 250)) // Half extents of the box
+});
+rightBorderBody.position.set(8.33, 2.5, -250);
+world.addBody(rightBorderBody);
 
 let obstacles = []; // Store obstacles for management
 
-function generateObstacle(zPosition) {
-    const obstacleGeometry = new THREE.BoxGeometry(1, 1, 1);
-    const obstacleMaterial = new THREE.MeshBasicMaterial({ color: 0x964B00 });
-    const obstacle = new THREE.Mesh(obstacleGeometry, obstacleMaterial);
-    obstacle.position.set((Math.random() - 0.5) * 20, 0.5, zPosition); // Random x position within bounds
-    scene.add(obstacle);
-    obstacles.push(obstacle);
+function generateTree(zPosition) {
+    // Tree Trunk
+    const trunkGeometry = new THREE.CylinderGeometry(0.2, 0.2, 1, 8);
+    const trunkMaterial = new THREE.MeshBasicMaterial({ color: 0x8B4513 }); // Brown color
+    const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
+    trunk.position.set((Math.random() - 0.5) * 16.67, 0.5, zPosition);
+    scene.add(trunk);
+
+    // Tree Leaves
+    const leavesGeometry = new THREE.ConeGeometry(0.5, 1.5, 8);
+    const leavesMaterial = new THREE.MeshBasicMaterial({ color: 0x228B22 }); // Green color
+    const leaves = new THREE.Mesh(leavesGeometry, leavesMaterial);
+    leaves.position.set(trunk.position.x, 1.25, zPosition);
+    scene.add(leaves);
+
+    // Tree physics body
+    const treeBody = new CANNON.Body({
+        mass: 0, // Static body
+        shape: new CANNON.Cylinder(0.2, 0.2, 1, 8) // Same shape as the trunk
+    });
+    treeBody.position.set(trunk.position.x, 0.5, zPosition);
+    world.addBody(treeBody);
+    obstacles.push(trunk); // Add to obstacles array for management
+}
+
+function generateJump(zPosition) {
+    // Jump ramp
+    const jumpGeometry = new THREE.BoxGeometry(3, 0.5, 2);
+    const jumpMaterial = new THREE.MeshBasicMaterial({ color: 0xD3D3D3 }); // Grey color
+    const jump = new THREE.Mesh(jumpGeometry, jumpMaterial);
+    jump.position.set((Math.random() - 0.5) * 16.67, 0.25, zPosition);
+    jump.rotation.x = Math.PI / 8; // Tilt the ramp upward
+    scene.add(jump);
+
+    // Jump physics body
+    const jumpBody = new CANNON.Body({
+        mass: 0, // Static body
+        shape: new CANNON.Box(new CANNON.Vec3(1.5, 0.25, 1)) // Half extents of the box
+    });
+    jumpBody.position.set(jump.position.x, 0.25, zPosition);
+    jumpBody.quaternion.setFromEuler(Math.PI / 8, 0, 0); // Rotate to match the visual ramp
+    world.addBody(jumpBody);
+    obstacles.push(jump); // Add to obstacles array for management
 }
 
 function manageObstacles() {
-    // Generate obstacles as the skier moves
-    if (obstacles.length < 10) {
-        const zPosition = skier.position.z - (Math.random() * 100 + 50);
-        generateObstacle(zPosition);
+    while (obstacles.length < 10) {
+        const zPosition = skier.position.z - (Math.random() * 30 + 10); // Obstacles start appearing close to the skier
+        if (Math.random() > 0.5) {
+            generateTree(zPosition); // 50% chance to generate a tree
+        } else {
+            generateJump(zPosition); // 50% chance to generate a jump
+        }
     }
 
-    // Remove obstacles that are too far behind the skier
     obstacles = obstacles.filter(obstacle => {
         if (obstacle.position.z > skier.position.z + 50) {
             scene.remove(obstacle);
@@ -117,56 +138,14 @@ function manageObstacles() {
 }
 
 let velocityX = 0;
-let velocityZ = -0.1;
-
-// Border Material
-const borderMaterial = new THREE.MeshBasicMaterial({ color: 0xEAEAEAa }); // Brown color for the borders
-
-// Left Border
-const leftBorderGeometry = new THREE.BoxGeometry(0.5, 5, 50); // Thin, tall wall
-const leftBorder = new THREE.Mesh(leftBorderGeometry, borderMaterial);
-leftBorder.position.set(-12.5, 2.5, 0); // Position it on the left edge
-scene.add(leftBorder);
-
-// Create a Cannon.js body for the left border
-const leftBorderBody = new CANNON.Body({
-    mass: 0, // Static body
-    shape: new CANNON.Box(new CANNON.Vec3(0.25, 2.5, 25)) // Half extents of the box
-});
-leftBorderBody.position.set(-12.5, 2.5, 0);
-world.addBody(leftBorderBody);
-
-// Right Border
-const rightBorderGeometry = new THREE.BoxGeometry(0.5, 5, 50); // Thin, tall wall
-const rightBorder = new THREE.Mesh(rightBorderGeometry, borderMaterial);
-rightBorder.position.set(12.5, 2.5, 0); // Position it on the right edge
-scene.add(rightBorder);
-
-// Create a Cannon.js body for the right border
-const rightBorderBody = new CANNON.Body({
-    mass: 0, // Static body
-    shape: new CANNON.Box(new CANNON.Vec3(0.25, 2.5, 25)) // Half extents of the box
-});
-rightBorderBody.position.set(12.5, 2.5, 0);
-world.addBody(rightBorderBody);
-
-// Grey outline material
-const outlineMaterial = new THREE.LineBasicMaterial({ color: 0x808080 }); // Grey color
-
-// Add outline to the left border
-const leftBorderEdges = new THREE.EdgesGeometry(leftBorderGeometry);
-const leftBorderOutline = new THREE.LineSegments(leftBorderEdges, outlineMaterial);
-leftBorderOutline.position.copy(leftBorder.position); // Match position
-scene.add(leftBorderOutline);
-
-// Add outline to the right border
-const rightBorderEdges = new THREE.EdgesGeometry(rightBorderGeometry);
-const rightBorderOutline = new THREE.LineSegments(rightBorderEdges, outlineMaterial);
-rightBorderOutline.position.copy(rightBorder.position); // Match position
-scene.add(rightBorderOutline);
+let velocityZ = -0.1; // Initial speed
+let speedIncreaseRate = 0.0005; // Rate at which speed increases
 
 function animate() {
     requestAnimationFrame(animate);
+
+    // Increase skier's velocity over time
+    velocityZ -= speedIncreaseRate; // Make velocityZ more negative to increase speed
 
     // Update physics
     world.step(1 / 60);
@@ -178,37 +157,28 @@ function animate() {
     // Update skier position
     skier.position.copy(skierBody.position);
 
-    // Add the skier's current position to the trail
-    trailPoints.push(new THREE.Vector3(skier.position.x, 0.01, skier.position.z)); // Keep y close to the ground
-    if (trailPoints.length > 100) { // Limit the number of points to avoid performance issues
-        trailPoints.shift();
-    }
-
-    trailGeometry.setFromPoints(trailPoints);
-
     // Keep the camera centered on the skier
-    camera.position.set(skier.position.x, skier.position.y + 5, skier.position.z + 10); // Adjust camera position to follow skier
+    camera.position.set(skier.position.x, skier.position.y + 5, skier.position.z + 10);
     camera.lookAt(skier.position);
 
-    manageGround();
     manageObstacles();
 
     // Render the scene
     renderer.render(scene, camera);
 
-    // Example of simple left/right controls (using WASD or arrow keys)
+    // Example controls
     document.addEventListener('keydown', (event) => {
         if (event.key === 'a') {
-            velocityX = -0.1; // Smoothly glide left
+            velocityX = -0.1; // Glide left
         }
         if (event.key === 'd') {
-            velocityX = 0.1; // Smoothly glide right
+            velocityX = 0.1; // Glide right
         }
     });
 
     document.addEventListener('keyup', (event) => {
         if (event.key === 'a' || event.key === 'd') {
-            velocityX = 0; // Stop movement when key is released
+            velocityX = 0; // Stop movement
         }
     });
 }
