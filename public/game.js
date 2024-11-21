@@ -282,8 +282,13 @@ function checkCollisions() {
     obstacles.forEach((obstacle) => {
         const distance = skier.position.distanceTo(obstacle.mesh.position);
         if (distance < 1) {
-            alert('Game Over!');
-            // Reset game or handle collision
+            if (obstacle.type === 'jump') {
+                // Allow the skier to go over the jump
+                skierBody.velocity.y = 5; // Adjust this value for jump height
+            } else {
+                alert('Game Over!');
+                // Reset game or handle collision
+            }
         }
     });
 }
