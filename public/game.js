@@ -74,14 +74,16 @@ const skierBody = new CANNON.Body({
 world.addBody(skierBody);
 
 // Create the ground
-const groundGeometry = new THREE.PlaneGeometry(16.67, 500);
+const groundWidth = 16.67;
+const groundDepth = 500;
+const groundGeometry = new THREE.PlaneGeometry(groundWidth, groundDepth);
 const groundMaterial = new THREE.MeshBasicMaterial({
     color: 0xEAEAEA,
     side: THREE.DoubleSide,
 });
 const ground = new THREE.Mesh(groundGeometry, groundMaterial);
 ground.rotation.x = -Math.PI / 2;
-ground.position.set(0, 0, -250);
+ground.position.set(0, 0, -groundDepth / 2);
 scene.add(ground);
 
 const groundBody = new CANNON.Body({
@@ -97,105 +99,138 @@ scene.background = new THREE.Color(0x87ceeb);
 // Create borders
 const borderMaterial = new THREE.MeshBasicMaterial({ color: 0x964B00 });
 
-const leftBorderGeometry = new THREE.BoxGeometry(0.5, 5, 500);
+const leftBorderGeometry = new THREE.BoxGeometry(0.5, 5, groundDepth);
 const leftBorder = new THREE.Mesh(leftBorderGeometry, borderMaterial);
-leftBorder.position.set(-8.33, 2.5, -250);
+leftBorder.position.set(-groundWidth / 2, 2.5, -groundDepth / 2);
 scene.add(leftBorder);
 
 const leftBorderBody = new CANNON.Body({
     mass: 0,
-    shape: new CANNON.Box(new CANNON.Vec3(0.25, 2.5, 250)),
+    shape: new CANNON.Box(new CANNON.Vec3(0.25, 2.5, groundDepth / 2)),
 });
-leftBorderBody.position.set(-8.33, 2.5, -250);
+leftBorderBody.position.set(-groundWidth / 2, 2.5, -groundDepth / 2);
 world.addBody(leftBorderBody);
 
-const rightBorderGeometry = new THREE.BoxGeometry(0.5, 5, 500);
+const rightBorderGeometry = new THREE.BoxGeometry(0.5, 5, groundDepth);
 const rightBorder = new THREE.Mesh(rightBorderGeometry, borderMaterial);
-rightBorder.position.set(8.33, 2.5, -250);
+rightBorder.position.set(groundWidth / 2, 2.5, -groundDepth / 2);
 scene.add(rightBorder);
 
 const rightBorderBody = new CANNON.Body({
     mass: 0,
-    shape: new CANNON.Box(new CANNON.Vec3(0.25, 2.5, 250)),
+    shape: new CANNON.Box(new CANNON.Vec3(0.25, 2.5, groundDepth / 2)),
 });
-rightBorderBody.position.set(8.33, 2.5, -250);
+rightBorderBody.position.set(groundWidth / 2, 2.5, -groundDepth / 2);
 world.addBody(rightBorderBody);
 
 // Obstacles array
 let obstacles = [];
 
+// Helper functions to manage slots and positions
+const totalSlots = 4; // Number of horizontal slots
+function getAvailableSlot(occupiedSlots) {
+    const availableSlots = [];
+    for (let i = 0; i < totalSlots; i++) {
+        if (!occupiedSlots.has(i)) {
+            availableSlots.push(i);
+        }
+    }
+    if (availableSlots.length === 0) return null;
+    const randomIndex = Math.floor(Math.random() * availableSlots.length);
+    const slot = availableSlots[randomIndex];
+    occupiedSlots.add(slot);
+    return slot;
+}
+
+function getXPositionForSlot(slot) {
+    const slotWidth = groundWidth / totalSlots;
+    const xPosition = -groundWidth / 2 + slotWidth / 2 + slot * slotWidth;
+    return xPosition;
+}
+
 // Function to generate trees
-function generateTree(zPosition) {
-    const trunkGeometry = new THREE.CylinderGeometry(0.2, 0.2, 1, 8);
+function generateTree(zPosition, occupiedSlots) {
+    const trunkGeometry = new THREE.CylinderGeometry(0.4, 0.4, 2, 8);
     const trunkMaterial = new THREE.MeshBasicMaterial({ color: 0x8B4513 });
+    const slot = getAvailableSlot(occupiedSlots);
+    if (slot === null) return; // No available slot
+    const xPosition = getXPositionForSlot(slot);
     const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
-    trunk.position.set((Math.random() - 0.5) * 16.67, 0.5, zPosition);
+    trunk.position.set(xPosition, 1, zPosition);
     scene.add(trunk);
 
-    const leavesGeometry = new THREE.ConeGeometry(0.5, 1.5, 8);
+    const leavesGeometry = new THREE.ConeGeometry(1, 3, 8);
     const leavesMaterial = new THREE.MeshBasicMaterial({ color: 0x228B22 });
     const leaves = new THREE.Mesh(leavesGeometry, leavesMaterial);
-    leaves.position.set(trunk.position.x, 1.25, zPosition);
+    leaves.position.set(trunk.position.x, 2.5, zPosition);
     scene.add(leaves);
 
     const treeBody = new CANNON.Body({
         mass: 0,
-        shape: new CANNON.Cylinder(0.2, 0.2, 1, 8),
+        shape: new CANNON.Cylinder(0.4, 0.4, 2, 8),
     });
-    treeBody.position.set(trunk.position.x, 0.5, zPosition);
+    treeBody.position.set(trunk.position.x, 1, zPosition);
     world.addBody(treeBody);
     obstacles.push({ mesh: trunk, body: treeBody, type: 'tree' });
 }
 
 // Function to generate jumps
-function generateJump(zPosition) {
-    const jumpGeometry = new THREE.BoxGeometry(3, 0.5, 2);
+function generateJump(zPosition, occupiedSlots) {
+    const jumpGeometry = new THREE.BoxGeometry(6, 1, 4);
     const jumpMaterial = new THREE.MeshBasicMaterial({ color: 0xD3D3D3 });
+    const slot = getAvailableSlot(occupiedSlots);
+    if (slot === null) return; // No available slot
+    const xPosition = getXPositionForSlot(slot);
     const jump = new THREE.Mesh(jumpGeometry, jumpMaterial);
-    jump.position.set((Math.random() - 0.5) * 16.67, 0.25, zPosition);
+    jump.position.set(xPosition, 0.5, zPosition);
     jump.rotation.x = Math.PI / 8;
     scene.add(jump);
 
     const jumpBody = new CANNON.Body({
         mass: 0,
-        shape: new CANNON.Box(new CANNON.Vec3(1.5, 0.25, 1)),
+        shape: new CANNON.Box(new CANNON.Vec3(3, 0.5, 2)),
     });
-    jumpBody.position.set(jump.position.x, 0.25, zPosition);
+    jumpBody.position.set(jump.position.x, 0.5, zPosition);
     jumpBody.quaternion.setFromEuler(Math.PI / 8, 0, 0);
     world.addBody(jumpBody);
     obstacles.push({ mesh: jump, body: jumpBody, type: 'jump' });
 }
 
 // Function to generate rocks
-function generateRock(zPosition) {
-    const rockGeometry = new THREE.SphereGeometry(0.3, 8, 8);
+function generateRock(zPosition, occupiedSlots) {
+    const rockGeometry = new THREE.SphereGeometry(0.6, 8, 8);
     const rockMaterial = new THREE.MeshBasicMaterial({ color: 0x808080 });
+    const slot = getAvailableSlot(occupiedSlots);
+    if (slot === null) return; // No available slot
+    const xPosition = getXPositionForSlot(slot);
     const rock = new THREE.Mesh(rockGeometry, rockMaterial);
-    rock.position.set((Math.random() - 0.5) * 16.67, 0.3, zPosition);
+    rock.position.set(xPosition, 0.6, zPosition);
     scene.add(rock);
 
     const rockBody = new CANNON.Body({
         mass: 0,
-        shape: new CANNON.Sphere(0.3),
+        shape: new CANNON.Sphere(0.6),
     });
-    rockBody.position.set(rock.position.x, 0.3, zPosition);
+    rockBody.position.set(rock.position.x, 0.6, zPosition);
     world.addBody(rockBody);
     obstacles.push({ mesh: rock, body: rockBody, type: 'rock' });
 }
 
 // Function to generate other skiers
-function generateOtherSkier(zPosition) {
-    const otherSkierGeometry = new THREE.BoxGeometry(0.5, 1, 0.5);
+function generateOtherSkier(zPosition, occupiedSlots) {
+    const otherSkierGeometry = new THREE.BoxGeometry(1, 2, 1);
     const otherSkierMaterial = new THREE.MeshBasicMaterial({ color: 0xFF0000 });
+    const slot = getAvailableSlot(occupiedSlots);
+    if (slot === null) return; // No available slot
+    const xPosition = getXPositionForSlot(slot);
     const otherSkier = new THREE.Mesh(otherSkierGeometry, otherSkierMaterial);
-    const xPosition = (Math.random() - 0.5) * 16.67;
-    otherSkier.position.set(xPosition, 0.5, zPosition);
+    otherSkier.position.set(xPosition, 1, zPosition);
     scene.add(otherSkier);
 
     const otherSkierBody = new CANNON.Body({
         mass: 1,
-        position: new CANNON.Vec3(xPosition, 0.5, zPosition),
-        shape: new CANNON.Box(new CANNON.Vec3(0.25, 0.5, 0.25)),
+        position: new CANNON.Vec3(xPosition, 1, zPosition),
+        shape: new CANNON.Box(new CANNON.Vec3(0.5, 1, 0.5)),
     });
 
     otherSkierBody.velocity.set((Math.random() - 0.5) * 0.1, 0, -0.05);
@@ -215,40 +250,43 @@ function generateOtherSkier(zPosition) {
 
 // Function to manage obstacles
 function manageObstacles() {
-    if (obstacles.length === 0) {
-        for (let i = 0; i < 10; i++) {
-            const zPosition = -50 - i * 50;
-            const obstacleType = Math.random();
+    const obstacleSpacing = 20; // Z-axis spacing between obstacle groups
+    const maxObstaclesPerGroup = 3;
 
-            if (obstacleType < 0.25) {
-                generateTree(zPosition);
-            } else if (obstacleType < 0.5) {
-                generateJump(zPosition);
-            } else if (obstacleType < 0.75) {
-                generateRock(zPosition);
-            } else {
-                generateOtherSkier(zPosition);
+    // Generate obstacles ahead of the skier
+    const generateObstaclesAhead = () => {
+        const zStart = Math.floor(skier.position.z / obstacleSpacing) * obstacleSpacing - 100;
+        const zEnd = zStart - 200;
+
+        for (let z = zStart; z >= zEnd; z -= obstacleSpacing) {
+            const existingObstacles = obstacles.filter(
+                (obs) => Math.abs(obs.mesh.position.z - z) < obstacleSpacing / 2
+            );
+            if (existingObstacles.length >= maxObstaclesPerGroup) continue;
+
+            const obstaclesToGenerate = maxObstaclesPerGroup - existingObstacles.length;
+            const occupiedSlots = new Set();
+
+            for (let i = 0; i < obstaclesToGenerate; i++) {
+                const obstacleType = Math.random();
+                if (obstacleType < 0.25) {
+                    generateTree(z, occupiedSlots);
+                } else if (obstacleType < 0.5) {
+                    generateJump(z, occupiedSlots);
+                } else if (obstacleType < 0.75) {
+                    generateRock(z, occupiedSlots);
+                } else {
+                    generateOtherSkier(z, occupiedSlots);
+                }
             }
         }
-    }
+    };
 
-    while (obstacles.length < 15) {
-        const zPosition = skier.position.z - (Math.random() * 150 + 100);
-        const obstacleType = Math.random();
+    generateObstaclesAhead();
 
-        if (obstacleType < 0.25) {
-            generateTree(zPosition);
-        } else if (obstacleType < 0.5) {
-            generateJump(zPosition);
-        } else if (obstacleType < 0.75) {
-            generateRock(zPosition);
-        } else {
-            generateOtherSkier(zPosition);
-        }
-    }
-
+    // Remove obstacles that are far behind the skier
     obstacles = obstacles.filter((obstacle) => {
-        if (obstacle.mesh.position.z > skier.position.z + 150) {
+        if (obstacle.mesh.position.z > skier.position.z + 50) {
             scene.remove(obstacle.mesh);
             world.remove(obstacle.body);
             return false;
@@ -281,7 +319,7 @@ let speedIncreaseRate = 0.0005;
 function checkCollisions() {
     obstacles.forEach((obstacle) => {
         const distance = skier.position.distanceTo(obstacle.mesh.position);
-        if (distance < 1) {
+        if (distance < 1.5) {
             if (obstacle.type === 'jump') {
                 // Allow the skier to go over the jump
                 skierBody.velocity.y = 5; // Adjust this value for jump height
