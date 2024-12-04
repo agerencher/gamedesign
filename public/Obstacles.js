@@ -114,29 +114,30 @@ class Obstacles {
        const maxObstaclesPerGroup = 3;
        const skierPosition = this.skier.getPosition();
 
-       // Generate obstacles ahead
        const zStart = Math.floor(skierPosition.z / obstacleSpacing) * obstacleSpacing - 100;
        const zEnd = zStart - 200;
 
        for (let z = zStart; z >= zEnd; z -= obstacleSpacing) {
-           if (Math.random() < 0.3) {
-               const occupiedSlots = new Set();
-               this.generateCoin(z, occupiedSlots);
-           }
+           const occupiedSlots = new Set();
 
+           // First generate obstacles
            const existingObstacles = this.obstacles.filter(
                obs => Math.abs(obs.mesh.position.z - z) < obstacleSpacing / 2
            );
-           if (existingObstacles.length >= maxObstaclesPerGroup) continue;
+           if (existingObstacles.length < maxObstaclesPerGroup) {
+               const obstaclesToGenerate = maxObstaclesPerGroup - existingObstacles.length;
 
-           const obstaclesToGenerate = maxObstaclesPerGroup - existingObstacles.length;
-           const occupiedSlots = new Set();
+               for (let i = 0; i < obstaclesToGenerate; i++) {
+                   const obstacleType = Math.random();
+                   if (obstacleType < 0.4) this.generateTree(z, occupiedSlots);
+                   else if (obstacleType < 0.7) this.generateJump(z, occupiedSlots);
+                   else this.generateRock(z, occupiedSlots);
+               }
+           }
 
-           for (let i = 0; i < obstaclesToGenerate; i++) {
-               const obstacleType = Math.random();
-               if (obstacleType < 0.4) this.generateTree(z, occupiedSlots);
-               else if (obstacleType < 0.7) this.generateJump(z, occupiedSlots);
-               else this.generateRock(z, occupiedSlots);
+           // Then generate coins in remaining slots
+           if (Math.random() < 0.3) {
+               this.generateCoin(z, occupiedSlots);
            }
        }
 
