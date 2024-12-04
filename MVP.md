@@ -75,16 +75,16 @@ This skiing game simulates a skier navigating down an infinite slope, collecting
 
 ## **Next Steps Timeline**
 
-### Week 1: Immediate Fixes
+### Immediate Fixes
 - Debug and finalize coin collection.
 - Implement game reset mechanics.
 - Refine obstacle placement.
 
-### Week 2: Gameplay Enhancements
+### Gameplay Enhancements
 - Add home screen and end screen.
 - Implement crash animation and sound effects.
 
-### Week 3: Visual and Functional Improvements
+### Visual and Functional Improvements
 - Add more details to terrain and borders.
 - Implement high score tracking.
 - Introduce dynamic difficulty scaling.
