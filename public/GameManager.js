@@ -7,13 +7,18 @@ import Obstacles from './Obstacles.js';
 
 class GameManager {
    constructor() {
-       this.gameActive = true;
+       this.gameActive = false;
        this.setupScene();
        this.setupPhysics();
        this.setupComponents();
        this.setupUI();
        this.setupEventListeners();
-       this.animate();
+       
+       // Home screen handling
+       this.homeScreen = document.getElementById('homeScreen');
+       document.getElementById('startButton').addEventListener('click', () => {
+           this.startGame();
+       });
    }
 
    setupScene() {
@@ -70,6 +75,12 @@ class GameManager {
        document.getElementById('restartButton').addEventListener('click', () => {
            this.restartGame();
        });
+   }
+
+   startGame() {
+       this.homeScreen.style.display = 'none';
+       this.gameActive = true;
+       this.animate();
    }
 
    gameOver() {

@@ -36,6 +36,43 @@
            z-index: 1000;
        }
 
+       #homeScreen {
+           position: absolute;
+           top: 0;
+           left: 0;
+           width: 100%;
+           height: 100%;
+           background-color: rgba(0, 0, 0, 0.8);
+           display: flex;
+           flex-direction: column;
+           align-items: center;
+           justify-content: center;
+           color: white;
+           z-index: 1000;
+       }
+
+       #startButton {
+           background-color: #4CAF50;
+           border: none;
+           color: white;
+           padding: 15px 32px;
+           margin: 20px;
+           font-size: 20px;
+           cursor: pointer;
+           border-radius: 4px;
+           transition: background-color 0.3s;
+       }
+
+       #startButton:hover {
+           background-color: #45a049;
+       }
+
+       #controls {
+           text-align: center;
+           margin: 20px;
+           font-size: 18px;
+       }
+
        #restartButton {
            background-color: #4CAF50;
            border: none;
@@ -67,6 +104,17 @@
    </style>
 </head>
 <body>
+   <div id="homeScreen">
+       <h1>Ski Adventure</h1>
+       <div id="controls">
+           <p>Controls:</p>
+           <p>A - Move Left</p>
+           <p>D - Move Right</p>
+           <p>Collect coins and avoid obstacles!</p>
+           <p>Jump over ramps for bonus points!</p>
+       </div>
+       <button id="startButton">Start Game</button>
+   </div>
    <div id="distanceDisplay">Distance: 0</div>
    <div id="coinDisplay">Coins: 0</div>
    <div id="gameOverScreen">
