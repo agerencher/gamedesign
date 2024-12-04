@@ -32,6 +32,10 @@ class Obstacles {
        return -16.67 / 2 + slotWidth / 2 + slot * slotWidth;
    }
 
+   getSlotFromPosition(xPosition) {
+       return Math.floor((xPosition + 16.67/2) / (16.67/this.totalSlots));
+   }
+
    generateTree(zPosition, occupiedSlots) {
        const slot = this.getAvailableSlot(occupiedSlots);
        if (slot === null) return;
@@ -55,7 +59,7 @@ class Obstacles {
            position: new CANNON.Vec3(xPosition, 1, zPosition)
        });
        this.world.addBody(treeBody);
-       this.obstacles.push({ mesh: trunk, body: treeBody, type: 'tree' });
+       this.obstacles.push({ mesh: trunk, body: treeBody, type: 'tree', slot: slot });
    }
 
    generateJump(zPosition, occupiedSlots) {
@@ -77,7 +81,7 @@ class Obstacles {
        });
        jumpBody.quaternion.setFromEuler(Math.PI / 8, 0, 0);
        this.world.addBody(jumpBody);
-       this.obstacles.push({ mesh: jump, body: jumpBody, type: 'jump' });
+       this.obstacles.push({ mesh: jump, body: jumpBody, type: 'jump', slot: slot });
    }
 
    generateRock(zPosition, occupiedSlots) {
@@ -97,7 +101,7 @@ class Obstacles {
            position: new CANNON.Vec3(xPosition, 0.6, zPosition)
        });
        this.world.addBody(rockBody);
-       this.obstacles.push({ mesh: rock, body: rockBody, type: 'rock' });
+       this.obstacles.push({ mesh: rock, body: rockBody, type: 'rock', slot: slot });
    }
 
    generateCoin(zPosition, occupiedSlots) {
@@ -120,10 +124,21 @@ class Obstacles {
        for (let z = zStart; z >= zEnd; z -= obstacleSpacing) {
            const occupiedSlots = new Set();
 
-           // First generate obstacles
+           // Track existing obstacles
+           this.obstacles.forEach(obs => {
+               if (Math.abs(obs.mesh.position.z - z) < obstacleSpacing / 2) {
+                   const slot = this.getSlotFromPosition(obs.mesh.position.x);
+                   if (slot >= 0 && slot < this.totalSlots) {
+                       occupiedSlots.add(slot);
+                   }
+               }
+           });
+
+           // Generate new obstacles if needed
            const existingObstacles = this.obstacles.filter(
                obs => Math.abs(obs.mesh.position.z - z) < obstacleSpacing / 2
            );
+           
            if (existingObstacles.length < maxObstaclesPerGroup) {
                const obstaclesToGenerate = maxObstaclesPerGroup - existingObstacles.length;
 
@@ -135,8 +150,8 @@ class Obstacles {
                }
            }
 
-           // Then generate coins in remaining slots
-           if (Math.random() < 0.3) {
+           // Generate coins in remaining free slots
+           if (Math.random() < 0.3 && occupiedSlots.size < this.totalSlots) {
                this.generateCoin(z, occupiedSlots);
            }
        }
