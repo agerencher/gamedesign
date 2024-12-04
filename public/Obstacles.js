@@ -243,11 +243,10 @@ class Obstacles {
             const distance = skierPosition.distanceTo(obstacle.mesh.position);
             if (distance < 1.5) {
                 if (obstacle.type === 'jump') {
-                    // Allow the skier to go over the jump
                     this.skier.applyJump();
                 } else {
-                    alert('Game Over!');
-                    // Reset game or handle collision
+                    // Game over
+                    this.scene.gameManager.gameOver();
                 }
             }
         });
