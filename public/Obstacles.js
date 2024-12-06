@@ -115,10 +115,10 @@ class Obstacles {
 
    manageObstacles() {
        const obstacleSpacing = 20;
-       const maxObstaclesPerGroup = 3;
        const skierPosition = this.skier.getPosition();
 
-       const zStart = Math.floor(skierPosition.z / obstacleSpacing) * obstacleSpacing - 100;
+       // Modified offset from -100 to -20 to reduce initial obstacle-free distance
+       const zStart = Math.floor(skierPosition.z / obstacleSpacing) * obstacleSpacing;
        const zEnd = zStart - 200;
 
        for (let z = zStart; z >= zEnd; z -= obstacleSpacing) {
@@ -135,6 +135,7 @@ class Obstacles {
            });
 
            // Generate new obstacles if needed
+           const maxObstaclesPerGroup = 3;
            const existingObstacles = this.obstacles.filter(
                obs => Math.abs(obs.mesh.position.z - z) < obstacleSpacing / 2
            );
