@@ -27,16 +27,16 @@ This skiing game simulates a skier navigating down an infinite slope, collecting
 
 ---
 
-## **Next Steps**
-
-### **Immediate Fixes**
+## Completed edits
 1. **Make coin functionality complete:**
    - Ensure the coin collection system works reliably.
    - Debug collision detection for coins to ensure consistency.
-
 2. **Game reset on collision:**
    - Implement a reset or "game over" mechanic when the skier hits an obstacle.
    - Restart the game loop and reset UI counters.
+## **Next Steps**
+
+### **Immediate Fixes**
 
 3. **Refine obstacle placement:**
    - Make obstacle placement less random to ensure that different routes or paths are viable.

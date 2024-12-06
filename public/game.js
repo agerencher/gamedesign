@@ -1,9 +1,7 @@
 // game.js
-
-import GameManager from './gamemanager.js';
-
-// Ensure that Three.js and Cannon.js are loaded in your HTML file
+import GameManager from './GameManager.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    const gameManager = new GameManager();
+   window.gameManager = new GameManager();
+   gameManager.scene.gameManager = gameManager;
 });
