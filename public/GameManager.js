@@ -83,9 +83,16 @@ class GameManager {
     }
 
     startGame() {
-        this.homeScreen.style.display = 'none';
-        this.gameActive = true;
-        this.animate();
+        const video = document.getElementById('transitionVideo');
+        video.style.display = 'block';
+        video.play();
+    
+        video.onended = () => {
+            video.style.display = 'none'; // Hide the video after it ends
+            this.homeScreen.style.display = 'none'; // Hide the home screen
+            this.gameActive = true; // Start the game
+            this.animate(); // Begin game animation loop
+        };
     }
 
     gameOver() {
