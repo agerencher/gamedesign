@@ -14,16 +14,12 @@ class GameManager {
         this.setupUI();
         this.setupEventListeners();
 
-        // Home screen handling
         this.homeScreen = document.getElementById('homeScreen');
         document.getElementById('startButton').addEventListener('click', () => {
             this.startGame();
         });
     }
 
-    /**
-     * Initializes the Three.js scene, camera, and renderer.
-     */
     setupScene() {
         this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(
@@ -34,33 +30,23 @@ class GameManager {
         );
         this.renderer = new THREE.WebGLRenderer({
             canvas: document.getElementById('gameCanvas'),
-            antialias: true, // Optional: smoother edges
         });
         this.renderer.setSize(window.innerWidth, window.innerHeight);
-        this.renderer.setPixelRatio(window.devicePixelRatio); // Handle high-DPI screens
         this.camera.position.set(0, 5, 10);
         this.camera.lookAt(0, 0, 0);
     }
 
-    /**
-     * Sets up the CANNON.js physics world.
-     */
     setupPhysics() {
         this.world = new CANNON.World();
-        this.world.gravity.set(0, -9.82, 0); // Earth gravity
-
-        // Ground Plane
+        this.world.gravity.set(0, -9.82, 0);
         const groundBody = new CANNON.Body({
-            mass: 0, // Static
+            mass: 0,
             shape: new CANNON.Plane(),
         });
-        groundBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0); // Rotate to make it horizontal
+        groundBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
         this.world.addBody(groundBody);
     }
 
-    /**
-     * Initializes game components: skier, terrain, and obstacles.
-     */
     setupComponents() {
         this.skier = new Skier(this.scene, this.world);
         this.terrain = new Terrain(this.scene, this.world);
@@ -68,23 +54,22 @@ class GameManager {
         this.startZPosition = 0;
         this.distanceTraveled = 0;
         this.coinsCollected = 0;
+
+        // Player death control
+        this.playerDead = false;
+        this.deathAnimationProgress = 0;
+        this.deathSide = 1; // Default if not set otherwise
     }
 
-    /**
-     * Sets up the user interface elements.
-     */
     setupUI() {
         this.distanceDisplay = document.getElementById('distanceDisplay');
         this.coinDisplay = document.getElementById('coinDisplay');
-        this.zDisplay = document.getElementById('zDisplay'); // Access Z-Axis Display
         this.gameOverScreen = document.getElementById('gameOverScreen');
         this.finalScore = document.getElementById('finalScore');
         this.finalCoins = document.getElementById('finalCoins');
+        // Removed zDisplay entirely
     }
 
-    /**
-     * Sets up event listeners for window resize and game controls.
-     */
     setupEventListeners() {
         window.addEventListener('resize', () => {
             this.camera.aspect = window.innerWidth / window.innerHeight;
@@ -97,18 +82,12 @@ class GameManager {
         });
     }
 
-    /**
-     * Starts the game by hiding the home screen and initiating the game loop.
-     */
     startGame() {
         this.homeScreen.style.display = 'none';
         this.gameActive = true;
         this.animate();
     }
 
-    /**
-     * Handles game over logic by displaying the game over screen and final scores.
-     */
     gameOver() {
         this.gameActive = false;
         this.gameOverScreen.style.display = 'block';
@@ -116,72 +95,137 @@ class GameManager {
         this.finalCoins.textContent = `Coins: ${this.coinsCollected}`;
     }
 
-    /**
-     * Restarts the game by reloading the page.
-     */
     restartGame() {
         location.reload();
     }
 
-    /**
-     * Updates the distance display based on the skier's position.
-     */
     updateDistanceDisplay() {
         const distance = Math.floor(this.distanceTraveled);
         this.distanceDisplay.textContent = `Distance: ${distance} meters`;
     }
 
-    /**
-     * Updates the coin display based on coins collected.
-     */
     updateCoinDisplay() {
         this.coinDisplay.textContent = `Coins: ${this.coinsCollected}`;
     }
 
     /**
-     * Updates the Z-Axis Position Display.
+     * Trigger the death animation with a given side
+     * @param {number} side - -1 for left side death, +1 for right side death
      */
-    updateZDisplay() {
-        const skierPosition = this.skier.getPosition();
-        this.zDisplay.textContent = `Z Position: ${skierPosition.z.toFixed(2)} m`;
+    triggerDeath(side) {
+        this.playerDead = true;
+        this.deathAnimationProgress = 0;
+        this.deathSide = side;
+
+        // Store initial camera state
+        this.deathCameraStartPosition = this.camera.position.clone();
+        this.deathCameraStartFOV = this.camera.fov;
+
+        // No immediate gameOver call, we run death animation first
     }
 
-    /**
-     * The main animation loop called each frame.
-     */
     animate() {
         if (!this.gameActive) return;
 
         requestAnimationFrame(this.animate.bind(this));
 
-        // Step the physics world
-        this.world.step(1 / 60);
+        if (this.playerDead) {
+            this.runDeathAnimation();
+        } else {
+            // Normal game logic
+            this.world.step(1 / 60);
+            this.skier.update();
+            this.obstacles.update();
+            this.terrain.update(this.skier.getPosition());
 
-        // Update game components
-        this.skier.update();
-        this.obstacles.update();
-        this.terrain.update(this.skier.getPosition());
+            const skierPosition = this.skier.getPosition();
+            this.distanceTraveled = Math.abs(this.startZPosition - skierPosition.z);
+            this.coinsCollected = this.skier.getCoinsCollected();
 
-        // Update distance and coins
-        const skierPosition = this.skier.getPosition();
-        this.distanceTraveled = Math.abs(this.startZPosition - skierPosition.z);
-        this.coinsCollected = this.skier.getCoinsCollected();
+            this.updateDistanceDisplay();
+            this.updateCoinDisplay();
 
-        // Update UI displays
-        this.updateDistanceDisplay();
-        this.updateCoinDisplay();
-        this.updateZDisplay(); // Update Z-Axis Display
+            this.camera.position.set(
+                skierPosition.x,
+                skierPosition.y + 5,
+                skierPosition.z + 10
+            );
+            this.camera.lookAt(skierPosition);
 
-        // Update camera position to follow the skier
-        this.camera.position.set(
-            skierPosition.x,
-            skierPosition.y + 5,
-            skierPosition.z + 10
-        );
-        this.camera.lookAt(skierPosition);
+            this.renderer.render(this.scene, this.camera);
+        }
+    }
 
-        // Render the scene
+    runDeathAnimation() {
+        const duration = 120; // ~2 seconds at 60fps
+        this.deathAnimationProgress += 1 / duration;
+        if (this.deathAnimationProgress > 1) this.deathAnimationProgress = 1;
+
+        const skierPos = this.skier.getPosition();
+
+        // We'll swing around the player along an arc just like before
+        // Angle 0 = behind the player, π = in front of the player
+        const angle = THREE.MathUtils.lerp(0, Math.PI, this.deathAnimationProgress);
+
+        // Reduced radius to 5
+        const radius = 5;
+
+        // Vertical positioning
+        const startHeight = skierPos.y + 5; // starting behind and above
+        const endHeight = skierPos.y + 2;   // end closer to skier's head
+        const currentHeight = THREE.MathUtils.lerp(startHeight, endHeight, this.deathAnimationProgress);
+
+        // Introduce a slight offset to the final position depending on deathSide
+        // We want the camera to end a little off-center. Let's say offsetX = 1 unit
+        const offsetX = 2 * this.deathSide;
+
+        // Compute camera X/Z on the arc
+        // angle=0: behind player (z+radius)
+        // angle=π: in front of player (z-radius)
+        // We'll apply offsetX at the end position. Interpolate angle on a perfect arc, then add offset near the end.
+
+        // Basic arc without offset:
+        let cameraX = skierPos.x + radius * Math.sin(angle);
+        let cameraZ = skierPos.z + radius * Math.cos(angle);
+
+        // As we approach the end, we add horizontal offset:
+        // At deathAnimationProgress=1, we add full offsetX.
+        // Use the same progress for offset blending:
+        cameraX += offsetX * this.deathAnimationProgress;
+
+        // Ensure camera does not travel outside walls
+        // Suppose walls are at ±8.335 (half of 16.67)
+        const wallLeft = -8.335;
+        const wallRight = 8.335;
+
+        // If cameraX would be outside walls, adjust logic:
+        if (cameraX < wallLeft) {
+            // If going left is impossible, try right side or clamp
+            cameraX = Math.max(cameraX, wallLeft);
+        } else if (cameraX > wallRight) {
+            // If going right is impossible, try left side or clamp
+            cameraX = Math.min(cameraX, wallRight);
+        }
+
+        this.camera.position.set(cameraX, currentHeight, cameraZ);
+
+        // Interpolate FOV
+        const originalFOV = this.deathCameraStartFOV;
+        const finalFOV = 40;
+        const newFOV = THREE.MathUtils.lerp(originalFOV, finalFOV, this.deathAnimationProgress);
+        this.camera.fov = newFOV;
+        this.camera.updateProjectionMatrix();
+
+        // Look at skier's head
+        const lookAtPos = skierPos.clone();
+        lookAtPos.y += 1;
+        this.camera.lookAt(lookAtPos);
+
         this.renderer.render(this.scene, this.camera);
+
+        if (this.deathAnimationProgress >= 1) {
+            this.gameOver();
+        }
     }
 }
 
